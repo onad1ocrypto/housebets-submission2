@@ -1,0 +1,1640 @@
+/* =============================================================
+   Housebets Sportsbook — prototype design system
+   Palette + structure taken from the official contest wireframes
+   (desk-home 1440x900, phone home/live/football/match/betslip).
+   ============================================================= */
+
+:root{
+  /* surfaces — near-black canvas, as flat and unblued as it gets */
+  --page:      #101010;
+  --bar:       #161616;
+  --card:      #171717;
+  --card-2:    #131313;
+  --tile:      #1F1F1F;
+  --tile-2:    #242424;
+  --tile-hi:   #2C2C2C;
+  --hair:      rgba(255,255,255,.085);
+  --hair-2:    rgba(255,255,255,.16);
+
+  /* ink — muted greys, not the blue-tinted whites of the first entry */
+  --ink:       #F2F2F2;
+  --ink-2:     #B5B5B5;
+  --ink-3:     #9A9A9A;
+  --ink-4:     #8A8A8A;
+
+  /* lime: the decorative accent of this version. Prices and primary
+     actions stay cyan, so the brand palette is untouched. */
+  --lime:      #A8DB2F;
+  --lime-deep: #2A3A14;
+  --lime-soft: rgba(168,219,47,.13);
+
+  /* ---- semantic type colours ----
+     score  = what happened   (brightest)
+     team   = who             (near white)
+     market = what kind of bet(quiet, but still AA-legible)
+     price  = what you can act on (the only accent)
+  ---------------------------------- */
+  --c-score:  #FFFFFF;
+  --c-team:   #E4E4E4;
+  --c-market: #A2A2A2;
+  --c-price:  #3ED0DA;   /* unchanged — the one accent the brief reserves */
+
+  /* accents */
+  --aqua:      #3ED0DA;
+  --aqua-hi:   #C4F4F1;
+  --aqua-deep: #1E2420;   /* surfaces only — kept neutral so the near-black
+  --aqua-deep2:#191D1A;      canvas stays unblued; prices never use these */
+  --live:      #F41F50;   /* fills, dots, borders */
+  --live-tx:   #FF7B90;   /* the same red, legible as text */
+  --live-badge:#CE1533;   /* dark enough for white text on top */
+  --up:        #4ADE9F;
+  --down:      #FF8794;
+  --gold:      #F7C860;
+
+  /* metrics */
+  --r-sm: 6px;
+  --r:    10px;
+  --r-lg: 14px;
+  --topbar-h: 56px;
+  --rail-w: 64px;
+  --panel-w: 328px;
+  --nav-h: 58px;
+
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+
+html,body{ height:100%; }
+body{
+  margin:0; background:var(--page); color:var(--ink);
+  font-family:var(--font);
+  font-size:14px; line-height:1.4;
+  -webkit-font-smoothing:antialiased;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings:'tnum' 1,'cv05' 1;
+  overflow:hidden;
+}
+button{ font:inherit; color:inherit; background:none; border:0; cursor:pointer; }
+input{ font:inherit; color:inherit; }
+a{ color:inherit; text-decoration:none; }
+
+/* ============================================================
+   SHELL
+   ============================================================ */
+.app{ height:100%; min-height:0; display:flex; flex-direction:column; overflow:hidden; }
+
+/* --- top bar --- */
+.topbar{
+  height:var(--topbar-h); flex:0 0 auto;
+  background:var(--bar);
+  border-bottom:1px solid var(--hair);
+  display:flex; align-items:center; gap:14px;
+  padding:0 14px; position:relative; z-index:60;
+}
+.brand{ display:flex; align-items:center; flex:0 0 auto; }
+/* The official lockup — wordmark and wave mark together, taken from
+   Housebets' own header rather than rebuilt from parts. The source
+   image is 206x54, so it is displayed well below that and stays crisp. */
+.brand .hlock{ height:30px; width:auto; display:block; flex:0 0 auto; }
+@media (max-width:640px){
+  .brand .hlock{ height:24px; }
+}
+.prize{
+  display:flex; align-items:center; gap:7px;
+  padding:5px 11px 5px 9px; border-radius:999px;
+  background:linear-gradient(180deg, rgba(62,208,218,.14), rgba(62,208,218,.06));
+  border:1px solid rgba(62,208,218,.28);
+  font-size:11.5px; letter-spacing:.01em;
+}
+.prize b{ color:var(--aqua-hi); font-weight:650; }
+.prize span{ color:var(--ink-3); }
+.prize .dot{ width:6px;height:6px;border-radius:50%;background:var(--aqua); box-shadow:0 0 8px var(--aqua); }
+
+.topRight{ margin-left:auto; display:flex; align-items:center; gap:8px; }
+.btn-login{
+  padding:7px 14px; border-radius:var(--r-sm);
+  background:var(--aqua-deep); border:1px solid var(--hair-2);
+  font-size:12.5px; font-weight:600; color:var(--ink-2);
+}
+.btn-register{
+  padding:7px 16px; border-radius:var(--r-sm);
+  background:linear-gradient(180deg,#D8FBFA,#A7EDE8);
+  color:#04222B; font-size:12.5px; font-weight:700;
+}
+.iconbtn{
+  width:32px;height:32px;border-radius:8px;display:grid;place-items:center;
+  color:var(--ink-3); border:1px solid transparent;
+}
+.iconbtn:hover{ background:rgba(255,255,255,.05); color:var(--ink); }
+
+/* --- body: rail + main + panel --- */
+.shell{
+  flex:1 1 auto; display:flex; min-height:0;
+  gap:12px; padding:12px;
+  max-width:1600px; width:100%; margin:0 auto;
+}
+
+.rail{
+  width:var(--rail-w); flex:0 0 var(--rail-w);
+  background:var(--bar); border-right:1px solid var(--hair);
+  display:flex; flex-direction:column; align-items:center;
+  padding:10px 0; gap:4px;
+  border-radius:14px; overflow:hidden;
+}
+.rail button{
+  width:48px; padding:8px 0; border-radius:10px;
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  color:var(--ink-4); font-size:9.5px; letter-spacing:.02em;
+}
+.rail button svg{ opacity:.9; }
+.rail button:hover{ color:var(--ink-2); background:rgba(255,255,255,.04); }
+.rail button.on{ color:var(--aqua); background:rgba(62,208,218,.10); }
+
+.main{
+  flex:1 1 auto; min-width:0; min-height:0;
+  display:flex; flex-direction:column; position:relative;
+  background:#161616; border:1px solid var(--hair); border-radius:14px; overflow:hidden;
+}
+.scroll{ flex:1 1 auto; overflow-y:auto; overflow-x:hidden; }
+.scroll::-webkit-scrollbar{ width:9px; }
+.scroll::-webkit-scrollbar-thumb{ background:#1E3038; border-radius:99px; border:2px solid var(--card); }
+
+.panel{
+  width:var(--panel-w); flex:0 0 var(--panel-w);
+  background:var(--card); border:1px solid var(--hair); border-radius:14px;
+  display:flex; flex-direction:column; min-height:0; position:relative; overflow:hidden;
+}
+
+/* ---- the bet column breathes --------------------------------
+   Four layers, all gold and all slow, so the column reads as
+   "your money" without shouting:
+     1. a wash that drifts through the background itself
+     2. a halo rising and falling behind the slip
+     3. the outer glow
+     4. the light line that travels the top edge
+   Everything speeds up once there is something in the slip.
+--------------------------------------------------------------- */
+@keyframes slipGlow{
+  0%,100%{ box-shadow:0 0 0 1px rgba(247,200,96,.10), 0 0 26px -10px rgba(247,200,96,.13); }
+  50%    { box-shadow:0 0 0 1px rgba(247,200,96,.34), 0 0 56px -6px rgba(247,200,96,.40); }
+}
+@keyframes slipLine{
+  0%   { transform:translateX(-100%); opacity:0; }
+  12%  { opacity:1; }
+  88%  { opacity:1; }
+  100% { transform:translateX(100%); opacity:0; }
+}
+/* the background colour itself moves: three stacked gradients
+   sliding at different speeds across an oversized canvas */
+@keyframes slipWash{
+  0%,100%{ background-position:50% 0%,  0% 100%, 50% 0%; }
+  33%    { background-position:20% 22%, 70%  64%, 50% 0%; }
+  66%    { background-position:82% 8%,  28%  34%, 50% 0%; }
+}
+/* a soft halo drifting under the slip content */
+@keyframes slipHalo{
+  0%,100%{ transform:translate3d(-7%,10%,0) scale(.88);  opacity:.30; }
+  50%    { transform:translate3d(8%,-11%,0) scale(1.18); opacity:.90; }
+}
+.panel{
+  background-color:var(--card);
+  background-image:
+    radial-gradient(115% 52% at 50% -6%,  rgba(247,200,96,.16), transparent 62%),
+    radial-gradient(90%  44% at 10% 110%, rgba(62,208,218,.085), transparent 60%),
+    linear-gradient(180deg, rgba(247,200,96,.06), transparent 44%, rgba(247,200,96,.032));
+  background-size:210% 210%, 180% 180%, 100% 100%;
+  background-repeat:no-repeat;
+  animation:slipGlow 5.2s ease-in-out infinite,
+            slipWash 13s ease-in-out infinite;
+}
+.panel > *{ position:relative; z-index:1; }
+.panel::before{
+  content:""; position:absolute; top:0; left:0; right:0; height:2px; z-index:3;
+  background:linear-gradient(90deg, transparent, rgba(247,200,96,.95), rgba(255,241,204,.98), rgba(247,200,96,.95), transparent);
+  animation:slipLine 5.2s ease-in-out infinite; pointer-events:none;
+}
+.panel::after{
+  content:""; position:absolute; inset:-32% -22%; z-index:0; pointer-events:none;
+  background:radial-gradient(48% 38% at 50% 50%, rgba(247,200,96,.20), transparent 70%);
+  animation:slipHalo 8s ease-in-out infinite;
+}
+.panel.has-bets{
+  animation:slipGlow 3.4s ease-in-out infinite,
+            slipWash 8.5s ease-in-out infinite;
+}
+.panel.has-bets::before{ animation-duration:3.4s; }
+.panel.has-bets::after{ animation-duration:5.2s; }
+/* on the full-width bets route the same treatment moves to the main column */
+body.route-bets .main{
+  background-color:var(--card);
+  background-image:
+    radial-gradient(115% 52% at 50% -6%,  rgba(247,200,96,.16), transparent 62%),
+    radial-gradient(90%  44% at 10% 110%, rgba(62,208,218,.085), transparent 60%),
+    linear-gradient(180deg, rgba(247,200,96,.06), transparent 44%, rgba(247,200,96,.032));
+  background-size:210% 210%, 180% 180%, 100% 100%;
+  background-repeat:no-repeat;
+  position:relative; overflow:hidden;
+  animation:slipGlow 5.2s ease-in-out infinite,
+            slipWash 13s ease-in-out infinite;
+}
+body.route-bets .main > *{ position:relative; z-index:1; }
+body.route-bets .main::before{
+  content:""; position:absolute; top:0; left:0; right:0; height:2px; z-index:3;
+  background:linear-gradient(90deg, transparent, rgba(247,200,96,.95), rgba(255,241,204,.98), rgba(247,200,96,.95), transparent);
+  animation:slipLine 5.2s ease-in-out infinite; pointer-events:none;
+}
+body.route-bets .main::after{
+  content:""; position:absolute; inset:-32% -22%; z-index:0; pointer-events:none;
+  background:radial-gradient(48% 38% at 50% 50%, rgba(247,200,96,.20), transparent 70%);
+  animation:slipHalo 8s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce){
+  .panel, .panel::before, .panel::after,
+  body.route-bets .main, body.route-bets .main::before, body.route-bets .main::after{ animation:none; }
+  .panel, body.route-bets .main{ box-shadow:0 0 0 1px rgba(247,200,96,.18); }
+}
+
+/* ============================================================
+   SEARCH
+   ============================================================ */
+.searchwrap{ padding:10px 16px 0; position:relative; }
+.search{
+  display:flex; align-items:center; gap:9px;
+  background:var(--card); border:1px solid var(--hair);
+  border-radius:var(--r); padding:0 12px; height:38px;
+}
+.search:focus-within{ border-color:rgba(62,208,218,.45); }
+.search svg{ color:var(--ink-3); flex:0 0 auto; }
+.search input{
+  flex:1 1 auto; background:none; border:0; outline:none;
+  font-size:13px; color:var(--ink);
+}
+.search input::placeholder{ color:var(--ink-4); }
+.sresults{
+  position:absolute; left:16px; right:16px; top:52px; z-index:80;
+  background:#1A1A1A; border:1px solid var(--hair-2); border-radius:var(--r);
+  box-shadow:0 18px 40px rgba(0,0,0,.55); overflow:hidden; display:none;
+}
+.sresults.open{ display:block; }
+.sresults .row{ display:flex; align-items:center; gap:10px; padding:9px 12px; cursor:pointer; }
+.sresults .row:hover{ background:rgba(62,208,218,.08); }
+.sresults .kind{ font-size:10px; color:var(--aqua); text-transform:uppercase; letter-spacing:.06em; width:74px; flex:0 0 74px; }
+.sresults .lbl{ font-size:13px; }
+.sresults .empty{ padding:14px 12px; color:var(--ink-3); font-size:12.5px; }
+
+/* ============================================================
+   SPORTS TABS
+   ============================================================ */
+/* The sports menu is a grid of small tiles, one per sport, so each
+   sport reads as its own card with a ball the size of a thumbnail
+   rather than a cramped line of text in a scrolling row. */
+/* Ten sports: fixed column counts (10 or 5) keep every row full, so the
+   menu never leaves a lone orphan tile on a second row the way
+   auto-fill did at 1280px. */
+.tabs{
+  display:grid;
+  grid-template-columns:repeat(10, minmax(0, 1fr));
+  gap:7px;
+  padding:11px 16px 0;
+}
+.tab{
+  position:relative;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:6px; min-height:78px; padding:10px 5px 9px;
+  border:1px solid rgba(255,255,255,.22); border-radius:11px;
+  /* Lime-tinted, but a real colour rather than a wash — over a
+     near-black page a wash still reads as black. Brightness 49-69
+     against a page of 15, so the tiles stay clearly their own
+     surface, and white labels keep 7.1:1 or better. */
+  background:linear-gradient(180deg, #3E5020 0%, #2C3A16 100%);
+  box-shadow:0 1px 0 rgba(255,255,255,.12) inset, 0 2px 8px rgba(0,0,0,.30);
+  font-size:11.5px; font-weight:650; color:#FFFFFF;
+  text-align:center; line-height:1.2;
+  transition:border-color .16s ease, background .16s ease, color .16s ease, transform .16s ease;
+}
+.tab:hover{
+  color:#FFFFFF; border-color:rgba(255,255,255,.38);
+  background:linear-gradient(180deg, #4A5F26 0%, #35461B 100%);
+}
+.tab.on{
+  color:#FFFFFF;
+  border-color:#A8DB2F;
+  background:linear-gradient(180deg, #2A3A14 0%, #1E2A0E 100%);
+  box-shadow:0 0 0 1px rgba(168,219,47,.45), 0 3px 12px rgba(0,0,0,.34);
+}
+/* the icon + count badge sit together so the badge can hang off the ball */
+.tab .tico{ position:relative; display:grid; place-items:center; }
+.tab .n{
+  position:absolute; top:-6px; right:-11px;
+  border:2px solid #2A6678;
+  min-width:18px; height:18px; padding:0 5px; border-radius:99px;
+  background:var(--live-badge); color:#fff; font-size:10px; font-weight:700;
+  display:grid; place-items:center;
+  box-shadow:0 0 0 2px var(--bg);
+}
+.tab .tlab{ white-space:normal; overflow-wrap:anywhere; }
+.tabsrule{ height:1px; background:var(--hair); margin:0 16px; }
+
+/* ---- the LIVE tab blinks ------------------------------------
+   A hard on/off blink (steps, not a fade) so it reads as a
+   broadcast light rather than a hover effect. The counter blinks
+   with it, and both beat faster once you are on the live page.
+--------------------------------------------------------------- */
+.tab[data-tab="live"]{ color:#FFFFFF; }
+.tab[data-tab="live"]::after{
+  content:""; flex:0 0 auto; width:6px; height:6px; border-radius:99px;
+  background:var(--live); margin-left:1px;
+  animation:liveBlink 1.1s steps(1, end) infinite;
+}
+.tab[data-tab="live"] .n{ animation:liveBlinkSoft 1.1s steps(1, end) infinite; }
+.tab[data-tab="live"].on{ color:#FFFFFF; }
+.tab[data-tab="live"].on::after,
+.tab[data-tab="live"].on .n{ animation-duration:.82s; }
+@keyframes liveBlink{
+  0%,54%  { opacity:1;   box-shadow:0 0 9px rgba(244,31,80,.95), 0 0 3px rgba(244,31,80,1); }
+  55%,100%{ opacity:.16; box-shadow:none; }
+}
+@keyframes liveBlinkSoft{
+  0%,54%  { opacity:1; }
+  55%,100%{ opacity:.38; }
+}
+@media (prefers-reduced-motion: reduce){
+  .tab[data-tab="live"]::after, .tab[data-tab="live"] .n{ animation:none; }
+}
+
+/* ============================================================
+   SECTIONS
+   ============================================================ */
+.sect{ padding:14px 16px 4px; }
+.secthead{ display:flex; align-items:center; gap:8px; margin-bottom:9px; }
+.secthead h2{ margin:0; font-size:13px; font-weight:650; letter-spacing:.01em; }
+.secthead .cnt{ color:var(--ink-4); font-size:12px; font-weight:500; }
+.secthead .more{ margin-left:auto; color:var(--ink-3); font-size:12px; display:flex; align-items:center; gap:3px; }
+.secthead .more:hover{ color:var(--aqua); }
+
+.chips{ display:flex; gap:8px; flex-wrap:wrap; }
+.chip{
+  display:flex; align-items:center; gap:7px;
+  padding:6px 10px; border-radius:999px;
+  background:var(--card); border:1px solid var(--hair);
+  font-size:12.5px; color:var(--ink-2);
+}
+.chip .x{ color:var(--ink-4); display:grid; place-items:center; }
+.chip .x:hover{ color:var(--live-tx); }
+.chip .cdot{ width:6px;height:6px;border-radius:50%; }
+
+/* ============================================================
+   MATCH CARD  (home / live / football)
+   ============================================================ */
+.mcard{
+  background:var(--card); border:1px solid var(--hair);
+  border-radius:var(--r); margin-bottom:8px; overflow:hidden;
+}
+.mcard .head{
+  display:flex; align-items:center; gap:8px;
+  padding:8px 12px; background:var(--card-2);
+  border-bottom:1px solid var(--hair);
+  font-size:11.5px; color:var(--ink-3);
+}
+.mcard .head .clive{ color:var(--live-tx); font-weight:700; display:flex; align-items:center; gap:5px; }
+.mcard .head .cdot{ width:5px;height:5px;border-radius:50%;background:var(--live); }
+/* The brief keeps the cyan accent for prices and primary actions only, so
+   the live minute wears the LIVE colour instead - it sits right beside
+   the LIVE badge and reads as one signal. */
+.mcard .head .clock{ color:var(--live-tx); font-weight:650; }
+.mcard .head .spacer{ margin-left:auto; }
+.mcard .head .mkt{ color:var(--ink-3); display:flex; align-items:center; gap:4px; }
+.mcard .head .mkt:hover{ color:var(--aqua); }
+.mcard .head .star{ color:var(--ink-4); }
+.mcard .head .star.on{ color:var(--gold); }
+
+.teams{ padding:10px 12px 6px; }
+.trow{ display:flex; align-items:center; gap:9px; padding:5px 0; }
+.trow .crest{ width:20px;height:20px;border-radius:4px; flex:0 0 20px; display:grid; place-items:center;
+  font-size:8.5px; font-weight:800; letter-spacing:.02em; color:#04141A; }
+.trow .tname{ font-size:13.5px; font-weight:600; color:var(--c-team); flex:1 1 auto; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.trow .tscore{ font-size:15px; font-weight:800; color:var(--c-score); width:20px; text-align:right; }
+
+.oddsrow{ display:flex; gap:6px; padding:2px 12px 12px; }
+.oddsrow.col3 .o{ flex:1 1 0; }
+.oddsrow.col2 .o{ flex:1 1 0; }
+.o{
+  background:var(--tile); border:1px solid var(--hair);
+  border-radius:8px; padding:7px 8px; min-width:0;
+  display:flex; align-items:center; justify-content:space-between; gap:6px;
+  transition:background .12s, border-color .12s, transform .12s;
+}
+.o:hover{ background:var(--tile-hi); border-color:var(--hair-2); }
+.o .oname{ font-size:11px; font-weight:500; color:var(--c-market); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.o .oval{ font-size:13.5px; font-weight:700; color:var(--c-price); }
+.o.sel{ background:var(--aqua-deep); border-color:var(--aqua); }
+.o.sel .oval{ color:var(--aqua-hi); }
+.o.susp{ opacity:.42; pointer-events:none; }
+.o.up .oval{ color:var(--up); }
+.o.down .oval{ color:var(--down); }
+.o .arw{ font-size:9px; line-height:1; }
+.o.flash-up{ animation:flashUp .9s ease-out; }
+.o.flash-down{ animation:flashDown .9s ease-out; }
+@keyframes flashUp{ 0%{background:rgba(53,211,154,.32);} 100%{background:var(--tile);} }
+@keyframes flashDown{ 0%{background:rgba(255,91,110,.30);} 100%{background:var(--tile);} }
+
+/* ---- price + what it moved from ------------------------------
+   The arrow says something changed; "was 1.30" says what from.
+   Space is reserved so a move never nudges the grid.
+--------------------------------------------------------------- */
+.o .opx{
+  display:flex; flex-direction:column; align-items:flex-end; justify-content:center;
+  gap:0; min-height:26px; flex:0 0 auto; line-height:1.2;
+}
+.o .owas{
+  font-size:9.5px; font-weight:600; letter-spacing:.01em;
+  color:var(--ink-4); white-space:nowrap; font-variant-numeric:tabular-nums;
+  /* ruang dipesan walau kosong -> harga bergerak tidak menggeser grid */
+  min-height:12px; line-height:12px;
+}
+.o.moved{ border-color:var(--hair-2); }
+.o.up.moved .owas{ color:rgba(53,211,154,.72); }
+.o.down.moved .owas{ color:rgba(255,91,110,.72); }
+
+.suspended{
+  margin:2px 12px 12px; padding:8px 10px; border-radius:8px;
+  background:rgba(255,255,255,.03); border:1px dashed var(--hair-2);
+  color:var(--ink-3); font-size:12px; font-weight:500; display:flex; align-items:center; gap:7px;
+}
+
+/* inline home row (desktop "Your matches" table) */
+.mtable{ padding:0 16px; }
+.mtable .mhead{
+  display:flex; align-items:center; padding:6px 12px;
+  font-size:10.5px; color:var(--ink-4); letter-spacing:.05em; text-transform:uppercase;
+}
+.mrow{
+  display:flex; align-items:center; gap:12px;
+  background:var(--card); border:1px solid var(--hair);
+  border-radius:var(--r); padding:9px 12px; margin-bottom:7px;
+}
+.mrow:hover{ border-color:var(--hair-2); }
+.mrow .when{ width:74px; flex:0 0 74px; font-size:11.5px; color:var(--ink-3); }
+.mrow .when .day{ display:block; color:var(--ink-4); font-size:10.5px; }
+.mrow .who{ flex:1 1 auto; min-width:0; }
+.mrow .who .t{ display:flex; align-items:center; gap:8px; padding:2px 0; }
+.mrow .who .t .crest{ width:17px;height:17px;border-radius:4px;flex:0 0 17px;display:grid;place-items:center;
+  font-size:7.5px;font-weight:800;color:#04141A; }
+.mrow .who .t .n{ font-size:13px; font-weight:600; color:var(--c-team); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.mrow .who .t .s{ margin-left:auto; font-weight:800; font-size:14px; color:var(--c-score); }
+.mrow .odds{ display:flex; gap:6px; flex:0 0 auto; }
+.mrow .odds .o{ min-width:84px; justify-content:center; gap:8px; }
+.mrow .odds .o .oval{ font-size:13px; }
+.mrow .moreM{ width:56px; flex:0 0 56px; text-align:right; color:var(--ink-3); font-size:12px; }
+.mrow .moreM:hover{ color:var(--aqua); }
+
+/* featured carousel */
+.feat{ display:flex; gap:10px; overflow-x:auto; padding:2px 16px 8px; scrollbar-width:none; }
+.feat::-webkit-scrollbar{ display:none; }
+.fcard{
+  flex:0 0 232px; background:var(--card); border:1px solid var(--hair);
+  border-radius:var(--r); padding:10px;
+}
+.fcard .fh{ display:flex; align-items:center; gap:7px; font-size:11px; color:var(--ink-3); margin-bottom:8px; }
+.fcard .fh .cdot{ width:5px;height:5px;border-radius:50%;background:var(--live); }
+.fcard .fh .l{ color:var(--live-tx); font-weight:700; }
+.fcard .fh .k{ margin-left:auto; }
+
+/* page headers with back arrow */
+.phead{ display:flex; align-items:center; gap:10px; padding:12px 16px 6px; }
+.phead .back{ display:grid; place-items:center; width:26px;height:26px;border-radius:7px; color:var(--ink-2); }
+.phead .back:hover{ background:rgba(255,255,255,.06); }
+.phead h1{ margin:0; font-size:17px; font-weight:700; }
+.phead .drop{ display:flex; align-items:center; gap:5px; color:var(--ink-2); }
+.phead .sub{ font-size:11px; color:var(--ink-4); letter-spacing:.05em; text-transform:uppercase; margin-left:2px; }
+
+/* filter pills */
+.filters{ display:flex; gap:7px; padding:8px 16px 10px; overflow-x:auto; scrollbar-width:none; }
+.filters::-webkit-scrollbar{ display:none; }
+.fpill{
+  display:flex; align-items:center; gap:6px; white-space:nowrap;
+  padding:6px 12px; border-radius:999px; font-size:12.5px;
+  background:var(--card); border:1px solid var(--hair); color:var(--ink-2);
+}
+.fpill.on{ background:var(--aqua-deep2); border-color:rgba(62,208,218,.45); color:var(--aqua-hi); }
+.fpill .n{ color:var(--ink-4); font-size:11.5px; }
+.fpill.on .n{ color:rgba(196,244,241,.7); }
+
+/* top competitions */
+.topcomps{ display:flex; gap:8px; overflow-x:auto; padding:2px 16px 4px; scrollbar-width:none; }
+.topcomps::-webkit-scrollbar{ display:none; }
+.comp{
+  flex:0 0 auto; display:flex; align-items:center; gap:8px;
+  padding:9px 12px; border-radius:var(--r);
+  background:var(--card); border:1px solid var(--hair);
+  font-size:12.5px; color:var(--ink-2);
+}
+.comp:hover{ border-color:rgba(62,208,218,.4); color:var(--ink); }
+.comp .cn{ font-weight:600; }
+.comp .cc{ color:var(--ink-4); font-size:11px; }
+
+.filters .flabel{ font-size:11px; color:var(--ink-4); text-transform:uppercase; letter-spacing:.05em; align-self:center; margin-right:2px; }
+.fpill.sm{ padding:5px 10px; font-size:12px; }
+
+/* competition group */
+.cgroup{ padding:6px 16px 2px; }
+.cgroup .ch{ display:flex; align-items:center; gap:8px; margin-bottom:7px; }
+.cgroup .ch .cdot{ width:6px;height:6px;border-radius:50%; }
+.cgroup .ch .cn{ font-size:13px; font-weight:650; }
+.cgroup .ch .ca{ margin-left:auto; color:var(--ink-3); font-size:12px; display:flex; align-items:center; gap:4px; }
+.cgroup .ch .ca:hover{ color:var(--aqua); }
+
+/* ---- live vs pre-match ------------------------------------
+   Live is loud, pre-match recedes. The price stays fully lit in
+   both: it is the thing you act on, so it never gets dimmed.
+   ------------------------------------------------------------ */
+.mcard.live, .mrow.live{
+  background:#1B1F14;
+  border-color:rgba(168,219,47,.20);
+  box-shadow:inset 3px 0 0 rgba(244,31,80,.72);
+}
+.mcard.live .head{ background:#171A12; }
+.mcard.live .head .clock{ font-size:12.5px; }
+.mcard.live .cdot{ animation:livePulse 1.9s ease-in-out infinite; }
+@keyframes livePulse{ 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.45;transform:scale(.86)} }
+
+.mcard.pre, .mrow.pre{
+  background:#0A1A21;
+  border-color:rgba(255,255,255,.045);
+  box-shadow:none;
+}
+.mcard.pre .head{ background:#08151B; border-bottom-color:rgba(255,255,255,.04); }
+.mcard.pre .trow .tname,
+.mrow.pre .who .t .n{ color:#8FA8B5; font-weight:550; }
+.mcard.pre .head,
+.mrow.pre .when{ color:var(--ink-3); font-weight:500; }
+.mcard.pre .head .mkt{ color:var(--ink-3); font-weight:500; }
+.mcard.pre .o{ background:#15262E; border-color:rgba(255,255,255,.055); }
+.mcard.pre .o .oname{ color:var(--ink-3); }
+
+.scoreboard.live{ box-shadow:inset 3px 0 0 rgba(244,31,80,.72); }
+
+/* empty state */
+.empty{
+  margin:10px 16px; padding:26px 18px; text-align:center;
+  background:var(--card); border:1px dashed var(--hair-2); border-radius:var(--r-lg);
+}
+.empty .ico{ color:var(--ink-4); margin-bottom:8px; }
+.empty h3{ margin:0 0 4px; font-size:14px; font-weight:650; }
+.empty p{ margin:0; font-size:12.5px; color:var(--ink-3); }
+
+/* ============================================================
+   MATCH PAGE
+   ============================================================ */
+.scoreboard{
+  margin:8px 16px 0; padding:14px 16px;
+  background:var(--card); border:1px solid var(--hair); border-radius:var(--r-lg);
+}
+.sb-top{ display:flex; align-items:center; gap:8px; margin-bottom:12px; font-size:11px; color:var(--ink-3); }
+.sb-top .cdot{ width:5px;height:5px;border-radius:50%;background:var(--live); }
+.sb-top .l{ color:var(--live-tx); font-weight:700; }
+.sb-top .k{ color:var(--live-tx); font-weight:650; }
+.sb-top .sp{ margin-left:auto; display:flex; align-items:center; gap:7px; }
+.sbtn{
+  display:flex; align-items:center; gap:6px; padding:5px 10px; border-radius:999px;
+  border:1px solid var(--hair-2); font-size:12px; color:var(--ink-2); background:rgba(255,255,255,.03);
+}
+.sbtn.on{ border-color:rgba(247,200,96,.5); background:rgba(247,200,96,.12); color:var(--gold); }
+
+.sb-score{ display:flex; align-items:center; gap:14px; margin-bottom:8px; }
+.sb-team{ flex:1 1 0; display:flex; align-items:center; gap:10px; min-width:0; }
+.sb-team.right{ flex-direction:row-reverse; text-align:right; }
+.sb-team .crest{ width:34px;height:34px;border-radius:8px;flex:0 0 34px;display:grid;place-items:center;
+  font-size:12px;font-weight:800;color:#04141A; }
+.sb-team .nm{ font-size:14px; font-weight:650; color:var(--c-team); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.nm-short{ display:none; }
+.sb-nums{ display:flex; align-items:center; gap:10px; flex:0 0 auto; }
+.sb-num{ font-size:30px; font-weight:800; letter-spacing:-.01em; line-height:1; color:var(--c-score); }
+.sb-dash{ color:var(--ink-4); font-size:22px; }
+
+.mkttabs{ display:flex; gap:2px; padding:12px 16px 0; overflow-x:auto; scrollbar-width:none; }
+.mkttabs::-webkit-scrollbar{ display:none; }
+.mkttab{
+  display:flex; align-items:center; gap:6px; white-space:nowrap;
+  padding:7px 12px; border-radius:8px; font-size:12.5px; font-weight:600; color:var(--ink-3);
+  border:1px solid transparent;
+}
+.mkttab:hover{ color:var(--ink-2); background:rgba(255,255,255,.04); }
+.mkttab.on{ background:var(--aqua-deep2); border-color:rgba(62,208,218,.35); color:var(--aqua-hi); }
+.mkttab .n{ font-size:10.5px; color:var(--c-market); }
+.mkttab.on .n{ color:rgba(196,244,241,.65); }
+
+.mkt{ padding:12px 16px 0; }
+.mkt .mh{
+  display:flex; align-items:center; gap:8px; margin-bottom:7px;
+  font-size:12.5px; font-weight:650; color:var(--c-market);
+}
+.mkt .mh .lock{ color:var(--ink-4); }
+.mkt .mh .tag{
+  font-size:10px; letter-spacing:.05em; text-transform:uppercase;
+  color:var(--ink-4); border:1px solid var(--hair-2); border-radius:99px; padding:2px 7px; font-weight:600;
+}
+.mkt.susp .grid .o{ opacity:.4; pointer-events:none; }
+.mkt.susp .mh{ color:var(--ink-3); }
+
+.grid{ display:grid; gap:6px; }
+.grid.c3{ grid-template-columns:repeat(3,1fr); }
+.grid.c2{ grid-template-columns:repeat(2,1fr); }
+.grid.c3 .o,.grid.c2 .o{ padding:8px 10px; }
+.grid .o .oname{ font-size:11.5px; }
+.grid .o .oval{ font-size:14px; color:var(--c-price); }
+
+/* ============================================================
+   BET SLIP / MY BETS
+   ============================================================ */
+.sliptabs{
+  display:flex; gap:2px; padding:10px 10px 0; border-bottom:1px solid var(--hair);
+  overflow-x:auto; scrollbar-width:none;   /* safety valve: never wrap, scroll instead */
+}
+.sliptabs::-webkit-scrollbar{ display:none; }
+.sliptab{
+  padding:9px 9px; font-size:12.5px; font-weight:650; color:var(--ink-3);
+  border-bottom:2px solid transparent; margin-bottom:-1px;
+  white-space:nowrap; flex:0 0 auto;       /* the count badge must never drop a line */
+}
+.sliptab.on{ color:var(--aqua); border-bottom-color:var(--aqua); }
+.sliptab .n{
+  display:inline-grid; place-items:center; min-width:17px; height:17px; padding:0 4px;
+  border-radius:99px; background:var(--aqua); color:#04222B; font-size:10px; font-weight:800; margin-left:5px;
+}
+.sliptabs .clr{
+  white-space:nowrap; flex:0 0 auto; margin-left:auto;
+  padding:9px 4px; font-size:11.5px; font-weight:650; color:var(--ink-3);
+}
+.sliptabs .clr:hover{ color:var(--live-tx); }
+
+.slipbody{ flex:1 1 auto; overflow-y:auto; padding:10px 12px; }
+.slipbody::-webkit-scrollbar{ width:8px; }
+.slipbody::-webkit-scrollbar-thumb{ background:#1E3038; border-radius:99px; }
+
+.singles{ display:flex; align-items:center; gap:7px; font-size:11px; color:var(--ink-4);
+  letter-spacing:.05em; text-transform:uppercase; margin-bottom:9px; }
+
+.bet{
+  background:var(--card-2); border:1px solid var(--hair); border-radius:var(--r);
+  padding:10px; margin-bottom:8px; position:relative;
+}
+.bet.changed{ border-color:var(--gold); background:rgba(247,200,96,.07); }
+.bet.susp{ opacity:.62; }
+.bet .bt{ display:flex; align-items:center; gap:8px; }
+.bet .bt .sel{ font-size:13.5px; font-weight:700; }
+.bet .bt .pr{ margin-left:auto; font-size:13.5px; font-weight:750; color:var(--aqua); }
+.bet.changed .bt .pr{ color:var(--gold); }
+.bet .bt .rm{ color:var(--ink-4); display:grid; place-items:center; padding:2px; }
+.bet .bt .rm:hover{ color:var(--live-tx); }
+.bet .bm{ font-size:11px; color:var(--ink-4); margin-top:3px; line-height:1.35; }
+
+.bet .changedbar{
+  display:flex; align-items:center; gap:8px; margin-top:9px; padding-top:9px;
+  border-top:1px dashed var(--hair-2);
+}
+.bet .changedbar .msg{ font-size:11.5px; color:var(--gold); flex:1 1 auto; }
+.bet .changedbar .msg b{ font-weight:700; }
+
+/* ---- bet failed: a reason that stays put ---------------------
+   A toast is gone in four seconds. This sits on the slip until the
+   punter changes the stake, removes the leg, or the retry lands.
+--------------------------------------------------------------- */
+.failbar{
+  display:flex; align-items:flex-start; gap:9px;
+  margin:0 0 10px; padding:10px 11px; border-radius:9px;
+  background:rgba(255,91,110,.10); border:1px solid rgba(255,91,110,.34);
+  animation:failIn .28s ease-out;
+}
+.failbar .fb-ico{
+  flex:0 0 auto; color:var(--down); display:flex; margin-top:1px;
+}
+.failbar .fb-ico svg{ width:14px; height:14px; }
+.failbar .fb-tx{ font-size:12px; line-height:1.45; color:#FFC9D0; }
+.failbar .fb-tx b{ color:#FF5B6E; font-weight:750; }
+@keyframes failIn{ from{ opacity:0; transform:translateY(-4px); } to{ opacity:1; transform:none; } }
+@media (prefers-reduced-motion: reduce){ .failbar{ animation:none; } }
+
+.pillbtn{
+  padding:5px 11px; border-radius:7px; font-size:11.5px; font-weight:700;
+  border:1px solid var(--hair-2); color:var(--ink-2); background:rgba(255,255,255,.04);
+}
+.pillbtn.acc{ background:linear-gradient(180deg,#D8FBFA,#A7EDE8); color:#04222B; border-color:transparent; }
+.pillbtn:hover{ filter:brightness(1.08); }
+
+/* The input and the 10/25/50/100 row used to share one line: they needed
+   443px in the 256px the panel gives, so the buttons overflowed and were
+   clipped. Stack them — the input takes a full row, the quick amounts the
+   next — so nothing is ever cut off at any panel width. */
+.stakeRow{ display:flex; flex-direction:column; gap:7px; margin-top:9px; }
+.stake{
+  flex:0 0 auto; width:100%; min-width:0; display:flex; align-items:center; gap:7px;
+  background:var(--card); border:1px solid var(--hair); border-radius:8px; padding:0 10px; height:36px;
+}
+.stake:focus-within{ border-color:rgba(62,208,218,.45); }
+.stake span{ color:var(--ink-4); font-size:12px; }
+.stake input{ flex:1 1 auto; min-width:0; width:100%; background:none; border:0; outline:none; font-size:14px; font-weight:650; }
+.quick{ display:flex; gap:5px; }
+.quick button{
+  flex:1 1 0; min-width:0; padding:0 4px; height:30px; border-radius:8px; border:1px solid var(--hair);
+  background:var(--card); font-size:11.5px; color:var(--ink-3); font-weight:600;
+}
+.quick button:hover{ border-color:var(--hair-2); color:var(--ink); }
+
+.returns{ margin-top:10px; padding-top:10px; border-top:1px solid var(--hair); }
+.rline{ display:flex; align-items:center; justify-content:space-between; padding:3px 0; font-size:12.5px; color:var(--ink-3); }
+.rline b{ color:var(--ink); font-weight:700; }
+.rline.big{ font-size:14px; }
+.rline.big b{ color:var(--aqua); font-size:16px; font-weight:750; }
+
+.slipfoot{ flex:0 0 auto; border-top:1px solid var(--hair); padding:11px 12px; background:var(--card-2); }
+.totals{ display:flex; justify-content:space-between; align-items:center; margin-bottom:9px; }
+.totals .t1{ font-size:12px; color:var(--ink-3); }
+.totals .t1 b{ display:block; color:var(--ink); font-size:14.5px; font-weight:700; }
+.totals .t2{ text-align:right; }
+.totals .t2 b{ display:block; color:var(--aqua); font-size:16px; font-weight:750; }
+.place{
+  width:100%; height:42px; border-radius:10px; font-size:14px; font-weight:750;
+  background:linear-gradient(180deg,#D8FBFA,#A7EDE8); color:#04222B;
+}
+.place:disabled{ background:#1A2A31; color:var(--ink-4); cursor:not-allowed; }
+
+/* my bets */
+.mb{ background:var(--card-2); border:1px solid var(--hair); border-radius:var(--r); padding:10px; margin-bottom:8px; }
+.mb .sh{ display:flex; align-items:center; gap:8px; }
+.mb .sh .st{ font-size:10px; letter-spacing:.05em; text-transform:uppercase; font-weight:750; padding:2px 7px; border-radius:99px; }
+.mb .sh .st.open{ color:var(--aqua); background:rgba(62,208,218,.12); }
+.mb .sh .st.won{ color:var(--up); background:rgba(53,211,154,.13); }
+.mb .sh .st.lost{ color:var(--ink-4); background:rgba(255,255,255,.05); }
+.mb .sh .st.cashed{ color:var(--gold); background:rgba(247,200,96,.13); }
+.mb .sh .dt{ margin-left:auto; font-size:11px; color:var(--ink-4); }
+.mb .sel{ font-size:13.5px; font-weight:650; margin-top:7px; }
+.mb .meta{ font-size:11px; color:var(--ink-4); margin-top:2px; }
+.mb .figs{ display:flex; gap:16px; margin-top:9px; padding-top:9px; border-top:1px solid var(--hair); }
+.mb .figs .f .k{ font-size:10.5px; color:var(--ink-4); }
+.mb .figs .f .v{ font-size:13px; font-weight:700; }
+.mb .co{ margin-top:9px; display:flex; gap:8px; align-items:center; }
+.mb .co .coval{ flex:1 1 auto; }
+.mb .co .coval .k{ font-size:10.5px; color:var(--ink-4); }
+.mb .co .coval .v{ font-size:15px; font-weight:750; color:var(--gold); }
+.mb .co button{
+  padding:8px 14px; border-radius:8px; font-size:12.5px; font-weight:700;
+  background:linear-gradient(180deg,#F7D98A,#F7C860); color:#3A2A05;
+}
+
+/* toasts */
+.toasts{ position:fixed; z-index:200; bottom:78px; left:50%; transform:translateX(-50%);
+  display:flex; flex-direction:column; gap:8px; align-items:center; pointer-events:none; }
+.toast{
+  display:flex; align-items:center; gap:9px; padding:10px 14px; border-radius:10px;
+  background:#1A1A1A; border:1px solid var(--hair-2); box-shadow:0 14px 34px rgba(0,0,0,.6);
+  font-size:13px; max-width:340px;
+}
+.toast .ic{ flex:0 0 auto; }
+.toast.ok{ border-color:rgba(53,211,154,.5); }
+.toast.ok .ic{ color:var(--up); }
+.toast.err{ border-color:rgba(255,91,110,.5); }
+.toast.err .ic{ color:var(--down); }
+.toast.warn{ border-color:rgba(247,200,96,.5); }
+.toast.warn .ic{ color:var(--gold); }
+
+/* receipt modal */
+.modal{ position:fixed; inset:0; z-index:300; display:none; }
+.modal.open{ display:block; }
+.modal .scrim{ position:absolute; inset:0; background:rgba(2,8,11,.72); }
+.modal .card{
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:min(360px, calc(100% - 32px)); background:var(--card);
+  border:1px solid var(--hair-2); border-radius:16px; padding:20px; text-align:center;
+}
+.modal .card .big{ font-size:13px; color:var(--ink-3); }
+.modal .card h3{ margin:6px 0 2px; font-size:19px; }
+.modal .card .amt{ font-size:28px; font-weight:800; color:var(--aqua); margin:8px 0 2px; }
+.modal .card .det{ font-size:12px; color:var(--ink-4); margin-top:8px; line-height:1.6; }
+.modal .card .acts{ display:flex; gap:8px; margin-top:16px; }
+.modal .card .acts button{ flex:1 1 0; height:38px; border-radius:9px; font-size:13px; font-weight:700; }
+.modal .card .acts .g{ border:1px solid var(--hair-2); color:var(--ink-2); background:rgba(255,255,255,.04); }
+.modal .card .acts .p{ background:linear-gradient(180deg,#D8FBFA,#A7EDE8); color:#04222B; }
+
+/* ============================================================
+   PHONE: bottom nav + slip bar + sheet
+   ============================================================ */
+.botnav{
+  display:none; flex:0 0 var(--nav-h);
+  background:var(--bar); border-top:1px solid var(--hair);
+  align-items:center; justify-content:space-around;
+}
+.botnav button{
+  flex:1 1 0; display:flex; flex-direction:column; align-items:center; gap:3px;
+  padding:7px 0; color:var(--ink-4); font-size:9.5px; letter-spacing:.02em;
+}
+.botnav button.on{ color:var(--aqua); }
+
+.slipbar{
+  display:none; flex:0 0 auto; background:var(--card-2);
+  border-top:1px solid var(--hair); padding:8px 12px;
+}
+.slipbar .in{ display:flex; align-items:center; gap:9px; }
+.slipbar .badge{
+  width:26px;height:26px;border-radius:7px;background:var(--aqua);color:#04222B;
+  display:grid;place-items:center;font-size:12px;font-weight:800;flex:0 0 26px;
+}
+.slipbar .txt{ flex:1 1 auto; min-width:0; }
+.slipbar .txt .t1{ font-size:12.5px; font-weight:650; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.slipbar .txt .t2{ font-size:11px; color:var(--ink-4); }
+.slipbar .amt{ font-size:13.5px; font-weight:750; color:var(--aqua); }
+.slipbar .chev{ color:var(--ink-3); }
+
+.sheet{ position:fixed; left:0; right:0; bottom:0; z-index:250; display:none; flex-direction:column;
+  max-height:86vh; background:var(--card); border-top:1px solid var(--hair-2);
+  border-radius:16px 16px 0 0; box-shadow:0 -18px 50px rgba(0,0,0,.6); }
+.sheet.open{ display:flex; }
+.sheet .grab{ padding:9px 0 3px; display:grid; place-items:center; }
+.sheet .grab i{ width:38px; height:4px; border-radius:99px; background:var(--hair-2); display:block; }
+.sheet .sh{ display:flex; align-items:center; gap:10px; padding:6px 14px 0; }
+.sheet .sh h3{ margin:0; font-size:15px; font-weight:700; }
+.sheet .sh .x{ margin-left:auto; color:var(--ink-3); width:28px;height:28px;border-radius:8px;display:grid;place-items:center; }
+.sheet .sh .x:hover{ background:rgba(255,255,255,.06); color:var(--ink); }
+.sheetpanel{ flex:1 1 auto; overflow-y:auto; min-height:0; }
+.sheetfoot{ flex:0 0 auto; border-top:1px solid var(--hair); padding:10px 14px calc(10px + env(safe-area-inset-bottom)); background:var(--card-2); }
+
+/* ============================================================
+   STATE LAB
+   ============================================================ */
+.lab{ position:fixed; z-index:400; right:14px; bottom:14px; }
+.lab .fab{
+  width:42px;height:42px;border-radius:50%; display:grid;place-items:center;
+  background:linear-gradient(180deg,#D8FBFA,#A7EDE8); color:#04222B;
+  box-shadow:0 8px 22px rgba(0,0,0,.5); font-size:15px;
+}
+.lab .menu{
+  display:none; position:absolute; right:0; bottom:52px; width:262px;
+  background:#1A1A1A; border:1px solid var(--hair-2); border-radius:12px;
+  box-shadow:0 18px 44px rgba(0,0,0,.66); padding:8px;
+}
+.lab .menu.open{ display:block; }
+.lab .menu .lh{ font-size:10px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-4); padding:6px 8px 4px; }
+.lab .menu button{
+  width:100%; text-align:left; padding:7px 9px; border-radius:7px; font-size:12.5px; color:var(--ink-2);
+  display:flex; align-items:center; gap:8px;
+}
+.lab .menu button:hover{ background:rgba(62,208,218,.10); color:var(--aqua-hi); }
+.lab .menu button .d{ width:7px;height:7px;border-radius:50%; flex:0 0 7px; }
+.lab .menu .note{ font-size:10.5px; color:var(--ink-4); padding:7px 9px 3px; line-height:1.45; border-top:1px solid var(--hair); margin-top:5px; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 1120px){
+  :root{ --panel-w: 300px; }
+}
+/* The slip used to vanish entirely between 641px and 979px: the panel
+   was hidden, and the bottom bar only exists at 640px. Keep the panel
+   down to 641px so a tablet or a half-screen window still has a slip. */
+@media (max-width: 980px){
+  .rail{ display:none; }
+}
+@media (max-width: 860px){
+  :root{ --panel-w: 272px; }
+}
+@media (max-width: 700px){
+  :root{ --panel-w: 248px; }
+}
+@media (max-width: 640px){
+  .panel{ display:none; }
+}
+
+/* ---- phone (<= 640px) : design target 390px ---- */
+@media (max-width: 640px){
+  :root{ --topbar-h:54px; }
+  .topbar{ padding:0 12px; gap:10px; }
+  .prize{ display:none; }
+  .searchwrap{ padding:9px 12px 0; }
+  .sresults{ left:12px; right:12px; }
+  .tabs{ padding:9px 12px 0; }
+  .tabsrule{ margin:0 12px; }
+  .sect{ padding:12px 12px 2px; }
+  .mtable{ padding:0 12px; }
+  .feat{ padding:2px 12px 8px; }
+  .phead{ padding:11px 12px 5px; }
+  .filters{ padding:7px 12px 9px; }
+  .cgroup{ padding:5px 12px 2px; }
+  .topcomps{ padding:2px 12px 4px; }
+  .scoreboard{ margin:8px 12px 0; padding:12px 13px; }
+  .mkttabs{ padding:11px 12px 0; }
+  .mkt{ padding:11px 12px 0; }
+  .empty{ margin:9px 12px; }
+  .botnav{ display:flex; }
+  .slipbar{ display:block; }
+  .toasts{ bottom:124px; }
+  .lab{ right:10px; bottom:76px; }
+  .lab .menu{ bottom:50px; width:min(262px, calc(100vw - 24px)); }
+
+  /* desktop-only table layout collapses to cards on phone */
+  .mtable .mhead{ display:none; }
+  .mtable .mrow{ display:block; padding:0; overflow:hidden; }
+  .mtable .mrow .when{ width:auto; padding:8px 12px 0; }
+  .mtable .mrow .when .day{ display:inline; margin-left:6px; }
+  .mtable .mrow .who{ padding:2px 12px 0; }
+  .mtable .mrow .odds{ padding:8px 12px 10px; }
+  .mtable .mrow .odds .o{ min-width:0; }
+  .mtable .mrow .moreM{ display:none; }
+  .grid.c3{ grid-template-columns:repeat(3,1fr); }
+}
+@media (max-width: 380px){
+  .grid.c3{ gap:5px; }
+  .o{ padding:6px; }
+}
+
+/* =============================================================
+   DESIGN DIRECTIONS — three candidate looks for discussion.
+   Applied via ?theme=a|b|c  (default = current wireframe look)
+   ============================================================= */
+
+/* ---- A · QUIET ---------------------------------------------
+   Anti-sportsbook. No boxes. Space does the separating.
+   Only the price carries colour. Everything else is grey.
+   ------------------------------------------------------------ */
+.theme-a{ --hair:transparent; --hair-2:transparent; }
+.theme-a .mcard,
+.theme-a .mrow,
+.theme-a .fcard,
+.theme-a .bet,
+.theme-a .mb,
+.theme-a .scoreboard,
+.theme-a .empty{ background:transparent; border-color:transparent; }
+.theme-a .mcard .head{ background:transparent; border-bottom:1px solid rgba(255,255,255,.055); }
+.theme-a .sect{ padding-top:22px; padding-bottom:12px; }
+.theme-a .secthead h2{ font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-4); font-weight:700; }
+.theme-a .o{ background:transparent; border-color:transparent; padding:10px 12px; }
+.theme-a .o:hover{ background:rgba(255,255,255,.035); }
+.theme-a .o .oname{ font-size:12.5px; color:var(--ink-2); }
+.theme-a .o .oval{ font-size:17px; font-weight:650; color:var(--aqua); }
+.theme-a .grid{ gap:2px; }
+.theme-a .grid .o{ border-left:1px solid rgba(255,255,255,.07); border-radius:0; }
+.theme-a .grid .o:first-child{ border-left:0; }
+.theme-a .trow .tname{ font-size:15px; font-weight:500; }
+.theme-a .trow .tscore{ font-size:16px; }
+.theme-a .mkt .mh{ font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-3); margin-bottom:2px; }
+.theme-a .sb-num{ font-size:40px; font-weight:700; }
+.theme-a .topbar{ background:transparent; border-bottom-color:rgba(255,255,255,.055); }
+
+/* ---- B · TRADING SURFACE ----------------------------------
+   Housebets is crypto. A bet is a position, the odds are a price.
+   Dense, tabular, numbers first. The slip is an order ticket.
+   ------------------------------------------------------------ */
+.theme-b{ --card:#08181F; --card-2:#061319; --tile:#0D2129; font-size:13px; }
+.theme-b .o{ border-radius:5px; padding:6px 8px; }
+.theme-b .o .oval{ font-size:15px; font-weight:700; letter-spacing:-.01em; }
+.theme-b .o .oname{ font-size:10.5px; letter-spacing:.02em; text-transform:uppercase; color:var(--ink-4); }
+.theme-b .grid{ gap:4px; }
+.theme-b .mkt .mh{ font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-4);
+  border-bottom:1px solid rgba(255,255,255,.07); padding-bottom:5px; margin-bottom:6px; }
+.theme-b .sect{ padding-top:10px; padding-bottom:2px; }
+.theme-b .secthead h2{ font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-3); }
+.theme-b .trow{ padding:3px 0; }
+.theme-b .trow .tname{ font-size:12.5px; }
+.theme-b .sb-num{ font-size:34px; font-weight:700; letter-spacing:-.02em; }
+.theme-b .mcard{ border-radius:6px; }
+.theme-b .bet{ border-radius:5px; }
+.theme-b .bet .bt .pr{ font-variant-numeric:tabular-nums; }
+.theme-b .place{ height:38px; border-radius:6px; }
+.theme-b .scoreboard{ border-radius:6px; }
+
+/* ---- C · LIVE FIRST ---------------------------------------
+   The match is the product. Score and clock dominate,
+   markets compress underneath. Live is loud, pre-match is quiet.
+   ------------------------------------------------------------ */
+.theme-c .scoreboard{ padding:18px 18px 16px; border-radius:16px;
+  background:linear-gradient(180deg,#0E2532,#08161D); }
+.theme-c .sb-num{ font-size:46px; font-weight:800; letter-spacing:-.03em; }
+.theme-c .sb-team .crest{ width:44px; height:44px; flex:0 0 44px; border-radius:11px; font-size:15px; }
+.theme-c .sb-team .nm{ font-size:15.5px; font-weight:700; }
+.theme-c .sb-top{ margin-bottom:14px; }
+.theme-c .sb-top .l{ font-size:12px; letter-spacing:.06em; }
+.theme-c .sb-top .k{ font-size:13px; }
+.theme-c .mkttab{ padding:6px 10px; font-size:12px; }
+.theme-c .mkt{ padding:9px 16px 0; }
+.theme-c .mkt .mh{ font-size:12px; }
+.theme-c .grid{ gap:4px; }
+.theme-c .o{ padding:7px 9px; border-radius:7px; }
+.theme-c .o .oval{ font-size:14.5px; }
+.theme-c .sect{ padding-top:10px; padding-bottom:2px; }
+.theme-c .mcard{ border-radius:12px; }
+.theme-c .mcard .head .clock{ font-size:12.5px; }
+
+/* =============================================================
+   BACKGROUND CANDIDATES — ?bg=g|w|v|n   (default = flat)
+   All stay inside the navy/aqua family, so "Feels like Housebets"
+   is never put at risk.
+   ============================================================= */
+.app{ position:relative; z-index:1; }
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+  /* wave motif — the same shape as the Housebets mark — over a deep marine gradient */
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='80' viewBox='0 0 320 80'%3E%3Cpath d='M0 54c27-24 53-24 80 0s53 24 80 0 53-24 80 0 53 24 80 0' fill='none' stroke='%233ED0DA' stroke-width='1.6' stroke-opacity='.13'/%3E%3Cpath d='M0 68c27-24 53-24 80 0s53 24 80 0 53-24 80 0 53 24 80 0' fill='none' stroke='%233ED0DA' stroke-width='1.1' stroke-opacity='.07'/%3E%3C/svg%3E"),
+    linear-gradient(180deg,#1A1A1A 0%, #141414 48%, #101010 100%);
+  background-repeat: repeat, no-repeat;
+  background-size: auto, cover;
+}
+
+/* --- G · deep marine gradient ------------------------------- */
+.bg-g body::before, body.bg-g::before{
+  background:linear-gradient(180deg,#1B1B1B 0%, #141414 46%, #101010 100%);
+}
+/* --- W · wave motif (echoes the Housebets mark) -------------- */
+body.bg-w::before{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='60' viewBox='0 0 240 60'%3E%3Cpath d='M0 40c20-18 40-18 60 0s40 18 60 0 40-18 60 0' fill='none' stroke='%233ED0DA' stroke-width='1.4' stroke-opacity='.16'/%3E%3Cpath d='M0 52c20-18 40-18 60 0s40 18 60 0 40-18 60 0' fill='none' stroke='%233ED0DA' stroke-width='1' stroke-opacity='.09'/%3E%3C/svg%3E");
+  background-repeat:repeat;
+}
+/* --- V · live vignette (aqua glow behind the action) --------- */
+body.bg-v::before{
+  background:radial-gradient(680px 340px at 50% 4%, rgba(168,219,47,.10), transparent 70%),
+             linear-gradient(180deg,#151515 0%, #101010 100%);
+}
+/* --- N · fine grain (kills banding on dark gradients) -------- */
+body.bg-n::before{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E");
+  background-repeat:repeat;
+}
+
+/* =============================================================
+   GOLD — the bet column's own identity.
+   Browse = aqua (the market grid). Bet = gold (your money).
+   Gold is already in the official Housebets palette (#F7C860),
+   where it means "something changed / you acted on it".
+   ============================================================= */
+.panel{ border-color:rgba(247,200,96,.22); }
+.panel .sliptab.on{ color:var(--gold); border-bottom-color:var(--gold); }
+.panel .bet .bt .pr{ color:var(--gold); }
+.panel .rline.big b{ color:var(--gold); }
+.panel .totals .t2 b{ color:var(--gold); }
+.panel .stake:focus-within{ border-color:rgba(247,200,96,.5); box-shadow:0 0 0 3px rgba(247,200,96,.10); }
+.panel .quick button:hover{ border-color:rgba(247,200,96,.42); color:var(--gold); }
+.panel .pillbtn.acc{ background:linear-gradient(180deg,#FDE7B4,#F7C860); color:#1A1204; }
+.panel .place{ background:linear-gradient(180deg,#FDE7B4,#E9B23F); color:#1A1204; }
+.panel .empty .ico{ color:rgba(247,200,96,.55); }
+
+/* the full-width bets route carries the same identity */
+body.route-bets .sliptab.on{ color:var(--gold); border-bottom-color:var(--gold); }
+body.route-bets .rline.big b,
+body.route-bets .totals .t2 b{ color:var(--gold); }
+body.route-bets .bet .bt .pr{ color:var(--gold); }
+body.route-bets .pillbtn.acc{ background:linear-gradient(180deg,#FDE7B4,#F7C860); color:#1A1204; }
+body.route-bets .place{ background:linear-gradient(180deg,#FDE7B4,#E9B23F); color:#1A1204; }
+
+/* the phone slip bar follows the same rule */
+.slipbar{ border-top:1px solid rgba(247,200,96,.30); }
+.slipbar .badge{ background:linear-gradient(180deg,#FDE7B4,#E9B23F); color:#1A1204; }
+.slipbar .amt{ color:var(--gold); }
+
+/* ---- rendered sport icons ---------------------------------- */
+.tab .sport-ico{
+  width:34px; height:34px; flex:0 0 34px; object-fit:contain; display:block;
+  filter:saturate(.92) brightness(.97);
+  transition:filter .18s ease, transform .18s ease;
+}
+/* Home and Live arrive as inline SVG — scale them to match the balls */
+.tab .sport-ico.svg{ display:grid; place-items:center; color:inherit; }
+.tab .sport-ico.svg svg{ width:27px; height:27px; display:block; }
+.tab:hover .sport-ico{ filter:saturate(1) brightness(1.06); }
+.tab.on .sport-ico{ filter:saturate(1.05) brightness(1.12); transform:scale(1.06); }
+
+/* ---- highlight poster (hot match) -------------------------- */
+.hero{
+  position:relative; margin:13px 16px 0; border-radius:14px; overflow:hidden;
+  background:#0D0D0D center/cover no-repeat; border:1px solid var(--hair);
+  display:flex; align-items:flex-end; min-height:206px;
+}
+.hero::before{
+  content:""; position:absolute; inset:0; z-index:1;
+  /* light at the top so the crests read, heavy at the bottom so the
+     scoreline and prices keep their contrast */
+  background:linear-gradient(180deg, rgba(13,13,13,.20) 0%, rgba(13,13,13,.44) 46%, rgba(13,13,13,.93) 100%);
+}
+.heroin{ position:relative; z-index:2; width:100%; padding:14px 16px 15px; }
+
+/* ---- hero art: the two crests facing off --------------------------
+   Each club lights its own half in its own colours, so the card says
+   who is playing before you read a word of it. Everything sits under
+   the gradient above and never takes a pointer event.
+------------------------------------------------------------------ */
+.heroart{ position:absolute; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
+
+/* A blur is cheap to draw once and expensive to draw every frame. The
+   glow used to animate scale as well, which forced the blur to be
+   re-rasterised 60 times a second; now only opacity moves, so the
+   blurred layer is rasterised once and merely faded. No blend mode
+   either — plain alpha composites far cheaper on a phone GPU. */
+.heroart .ha-glow{
+  position:absolute; top:-34%; width:74%; height:168%;
+  filter:blur(26px); opacity:.5;
+  will-change:opacity;
+  animation:haBreathe 7s ease-in-out infinite;
+}
+.heroart .ha-glow.l{ left:-20%; background:radial-gradient(closest-side, var(--hc), transparent 72%); }
+.heroart .ha-glow.r{ right:-20%; background:radial-gradient(closest-side, var(--ac), transparent 72%);
+  animation-delay:-3.5s; }
+@keyframes haBreathe{
+  0%,100%{ opacity:.40; }
+  50%    { opacity:.72; }
+}
+
+/* transform-only, and promoted to its own layer, so the float never
+   touches layout or paint */
+.heroart .ha-crest{
+  position:absolute; top:-16%; height:106%; width:38%;
+  display:grid; place-items:center; opacity:.34;
+  transform:rotate(var(--tilt,0deg));
+  will-change:transform;
+  animation:haFloat 9s ease-in-out infinite;
+}
+.heroart .ha-crest.l{ left:-5%;  --tilt:-9deg; }
+.heroart .ha-crest.r{ right:-5%; --tilt:9deg; animation-delay:-4.5s; }
+.heroart .ha-crest .crest{ width:100%; height:100%; }
+.heroart .ha-crest img{
+  width:100%; height:100%; object-fit:contain;
+  filter:drop-shadow(0 8px 24px rgba(0,0,0,.8));
+}
+@keyframes haFloat{
+  0%,100%{ transform:rotate(var(--tilt,0deg)) translateY(0)      scale(1); }
+  50%    { transform:rotate(var(--tilt,0deg)) translateY(-10px)  scale(1.04); }
+}
+
+.heroart .ha-vs{
+  position:absolute; left:50%; top:42%;
+  transform:translate(-50%,-50%);
+  font-size:25px; font-weight:800; letter-spacing:.16em;
+  color:rgba(255,255,255,.22);
+  will-change:transform,opacity;
+  animation:haVs 5s ease-in-out infinite;
+}
+/* letter-spacing animates layout, which is the one thing a phone cannot
+   hide — scale gets the same "widening" read for free on the compositor */
+@keyframes haVs{
+  0%,100%{ opacity:.5;  transform:translate(-50%,-50%) scale(1); }
+  50%    { opacity:.95; transform:translate(-50%,-50%) scale(1.10); }
+}
+
+.heroart .ha-sheen{
+  position:absolute; inset:0;
+  background:linear-gradient(105deg, transparent 36%, rgba(255,255,255,.11) 48%, transparent 60%);
+  will-change:transform;
+  animation:haSheen 6.5s ease-in-out infinite;
+}
+@keyframes haSheen{
+  0%,100%{ transform:translateX(-125%); }
+  55%    { transform:translateX(125%); }
+}
+
+/* Movement is decoration, never a requirement — respect the OS switch. */
+@media (prefers-reduced-motion:reduce){
+  .heroart .ha-glow,
+  .heroart .ha-crest,
+  .heroart .ha-vs,
+  .heroart .ha-sheen{ animation:none; }
+}
+.herotop{ display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
+.hlive{
+  display:inline-flex; align-items:center; gap:6px; font-size:10.5px; font-weight:800;
+  letter-spacing:.07em; color:#fff; background:var(--live-badge); padding:4px 9px; border-radius:6px;
+}
+.hlive i{ width:6px;height:6px;border-radius:99px;background:#fff; animation:blip 1.5s infinite; }
+@keyframes blip{ 0%,100%{opacity:1} 50%{opacity:.35} }
+.hkick,.hmeta{ font-size:11.5px; font-weight:500; color:#C6C6C6; }
+/* The crests sit right behind this line, and measured against the
+   brightest pixel of a club-coloured glow a mid grey only just cleared
+   4.5:1. A lighter grey buys real margin without dimming the art. */
+.herotop .hmeta{ margin-left:auto; }
+
+.heromid{ display:flex; align-items:center; gap:14px; margin-bottom:13px; }
+.hteam{ display:flex; align-items:center; gap:9px; flex:1 1 0; min-width:0; }
+.hteam.right{ justify-content:flex-end; }
+.hteam b{
+  font-size:19px; font-weight:750; color:#fff;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.hscore{ flex:0 0 auto; display:flex; align-items:center; gap:8px; }
+.hscore b{ font-size:33px; font-weight:800; color:#fff; line-height:1; font-variant-numeric:tabular-nums; }
+.hscore span{ font-size:19px; font-weight:600; color:var(--ink-3); }
+.hvs{ flex:0 0 auto; font-size:14px; font-weight:600; color:var(--ink-3); }
+
+.heroodds{ display:flex; gap:7px; align-items:stretch; }
+.heroodds .o{ flex:1 1 0; background:rgba(255,255,255,.07); border-color:rgba(255,255,255,.16); }
+.heroodds .o:hover{ background:rgba(255,255,255,.13); }
+.hgo{
+  flex:0 0 auto; display:inline-flex; align-items:center; gap:5px;
+  padding:0 12px; border-radius:8px; font-size:11.5px; font-weight:650;
+  color:#C4F4F1; background:rgba(62,208,218,.16); border:1px solid rgba(62,208,218,.34);
+}
+.hgo:hover{ background:rgba(62,208,218,.26); }
+
+@media (max-width:640px){
+  .hero{ margin:11px 12px 0; min-height:172px; }
+  /* The odds row wraps onto its own line here, so it sits lower in the
+     card where the club glow is strongest. A heavier gradient keeps the
+     outcome names legible without touching the art up top. */
+  .hero::before{
+    background:linear-gradient(180deg, rgba(13,13,13,.24) 0%, rgba(13,13,13,.62) 48%, rgba(13,13,13,.96) 100%);
+  }
+  .heroin{ padding:12px 13px 13px; }
+  .hteam b{ font-size:16px; }
+  .hscore b{ font-size:27px; }
+  .heromid{ gap:10px; }
+  .heroodds{ flex-wrap:wrap; }
+  .heroodds .o{ flex:1 1 30%; }
+  .hgo{ flex:1 1 100%; justify-content:center; padding:9px 12px; }
+}
+
+/* ---- team crest badges ------------------------------------- */
+.crest{ display:block; line-height:0; flex:0 0 auto; }
+.crest svg{ display:block; width:100%; height:100%; }
+.trow .crest, .mrow .who .t .crest, .sb-team .crest{ display:block; }
+
+/* ---- bet history ------------------------------------------- */
+.histsum{
+  display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:14px;
+}
+.histsum .hs{
+  background:var(--card-2); border:1px solid var(--hair); border-radius:10px; padding:9px 10px;
+}
+.histsum .k{ font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--c-market); }
+.histsum .v{ font-size:17px; font-weight:750; color:var(--ink); margin-top:3px; font-variant-numeric:tabular-nums; }
+.histsum .v.up{ color:var(--up); } .histsum .v.dn{ color:var(--live-tx); }
+.mb.hist{ border-color:var(--hair-2); }
+.shareRow{ margin-top:10px; padding-top:9px; border-top:1px dashed var(--hair-2); }
+.shb{
+  width:100%; display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  height:34px; border-radius:8px; font-size:12.5px; font-weight:650;
+  color:var(--gold); background:rgba(247,200,96,.10); border:1px solid rgba(247,200,96,.32);
+}
+.shb:hover{ background:rgba(247,200,96,.18); }
+
+/* ---- share modal ------------------------------------------- */
+.sharet{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.sharet h3{ margin:0; font-size:15px; font-weight:700; flex:1 1 auto; }
+.sharet .x{ color:var(--ink-3); display:grid; place-items:center; }
+.sharet .x:hover{ color:var(--ink); }
+.shareprev{
+  border-radius:12px; overflow:hidden; border:1px solid var(--hair-2); background:#061720;
+}
+.shareprev canvas{ display:block; width:100%; height:auto; }
+.sharenote{ font-size:12px; color:var(--ink-4); margin:10px 0 14px; line-height:1.5; }
+.sharebtns{ display:flex; flex-direction:column; gap:8px; }
+.sab{
+  display:flex; align-items:center; gap:9px; height:40px; padding:0 13px; border-radius:9px;
+  font-size:13px; font-weight:650; color:var(--ink);
+  background:rgba(255,255,255,.05); border:1px solid var(--hair-2);
+}
+.sab:hover{ background:rgba(255,255,255,.1); border-color:var(--hair-2); }
+.sab svg{ flex:0 0 auto; }
+.modal .card{ width:min(460px, 94vw); }
+@media (max-width:640px){ .histsum{ grid-template-columns:repeat(2,1fr); } }
+
+/* ---- club badges ------------------------------------------- */
+.crest img{ width:100%; height:100%; object-fit:contain; display:block; }
+
+/* ---- chat -------------------------------------------------- */
+.chatwrap{ flex:1 1 auto; overflow-y:auto; padding:12px 16px 0; }
+.chatnote{
+  font-size:11.5px; color:var(--c-market); text-align:center;
+  padding:7px 0 12px; border-bottom:1px solid var(--hair); margin-bottom:14px;
+}
+.msg{ display:flex; gap:9px; margin-bottom:14px; align-items:flex-start; }
+.msg.mine{ flex-direction:row-reverse; }
+.av{
+  width:32px; height:32px; flex:0 0 32px; border-radius:99px;
+  background:var(--tile); border:1px solid var(--hair-2); color:var(--ink-2);
+  display:grid; place-items:center; font-size:11px; font-weight:750; overflow:hidden;
+}
+.av.hubie{ background:none; border:0; }
+.av.hubie img, .av.hubie{ object-fit:contain; }
+.av.me{ background:rgba(62,208,218,.16); border-color:rgba(62,208,218,.4); color:var(--aqua); font-size:10px; }
+.bub{ max-width:min(560px, 76%); }
+.msg.mine .bub{ text-align:right; }
+.bub .who{ font-size:11.5px; font-weight:700; color:var(--aqua); margin-bottom:3px; }
+.bub .tx{ font-size:13.5px; color:var(--ink); background:var(--card-2);
+  border:1px solid var(--hair); border-radius:10px; padding:8px 11px; line-height:1.5; }
+.msg.mine .bub .tx{ background:rgba(62,208,218,.10); border-color:rgba(62,208,218,.26); }
+.bub .tm{ font-size:10.5px; color:var(--ink-4); margin-top:4px; }
+
+/* shared bet inside the chat */
+.betshare{
+  background:var(--card-2); border:1px solid var(--hair-2);
+  border-radius:11px; padding:10px 12px; text-align:left;
+}
+.bs-top{ display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.bs-top .res{ font-size:10.5px; font-weight:800; letter-spacing:.05em; padding:3px 8px; border-radius:5px; }
+.bs-top .res.won{ color:#5BD8A0; background:rgba(53,211,154,.16); }
+.bs-top .res.lost{ color:#FF6B8B; background:rgba(244,31,80,.16); }
+.bs-odds{ font-size:12.5px; font-weight:700; color:var(--aqua); margin-left:auto; }
+.bs-sel{ font-size:13.5px; font-weight:700; color:var(--ink); }
+.bs-fix{ font-size:11.5px; color:var(--ink-3); margin-top:2px; }
+.bs-fig{ display:flex; gap:14px; margin-top:8px; padding-top:8px; border-top:1px dashed var(--hair-2);
+  font-size:11.5px; color:var(--c-market); }
+.bs-fig b{ color:var(--ink); font-variant-numeric:tabular-nums; }
+
+.chatin{
+  flex:0 0 auto; display:flex; gap:8px; padding:10px 14px;
+  border-top:1px solid var(--hair); background:var(--card-2);
+}
+.chatin input{
+  flex:1 1 auto; height:38px; border-radius:9px; padding:0 12px; font-size:13px;
+  background:var(--card); border:1px solid var(--hair); color:var(--ink); outline:none;
+}
+.chatin input:focus{ border-color:rgba(62,208,218,.45); }
+.chatin button{
+  flex:0 0 44px; height:38px; border-radius:9px; display:grid; place-items:center;
+  background:rgba(62,208,218,.16); border:1px solid rgba(62,208,218,.34); color:var(--aqua);
+}
+
+/* ============================================================
+   FOOTER — brand trace: 18+ / gamble responsibly
+   ============================================================ */
+.sitefoot{
+  margin:26px 16px 22px; padding-top:16px;
+  border-top:1px solid var(--hair);
+  color:var(--ink-4);
+}
+.sitefoot .sf-row{ display:flex; align-items:flex-start; gap:10px; }
+.sitefoot .sf-18{
+  flex:0 0 auto; margin-top:1px;
+  min-width:26px; height:18px; padding:0 5px; border-radius:4px;
+  border:1px solid var(--hair-2); color:var(--ink-3);
+  font-size:10.5px; font-weight:800; letter-spacing:.02em;
+  display:grid; place-items:center;
+}
+.sitefoot .sf-row p{ margin:0; font-size:12px; line-height:1.5; color:var(--ink-3); }
+.sitefoot .sf-links{
+  display:flex; flex-wrap:wrap; gap:14px; margin-top:10px;
+  font-size:11.5px; font-weight:600; color:var(--ink-4);
+}
+.sitefoot .sf-links span{ cursor:default; }
+.sitefoot .sf-note{
+  margin-top:10px; font-size:11px; font-weight:500; line-height:1.55; color:var(--ink-3);
+}
+@media (max-width:640px){
+  .sitefoot{ margin:22px 12px 18px; }
+}
+
+/* Tiles holding player names or long price labels need more
+   on a phone they drop to two columns so names are not clipped. */
+@media (max-width:640px){
+  .grid.c3.wide{ grid-template-columns:repeat(2,1fr); }
+  .grid.wide .o .oname{ font-size:12px; }
+  /* rather than clip a market name, let it wrap — every tile in the
+     row stretches to the same height, so the grid stays even */
+  .grid .o .oname{
+    white-space:normal; overflow:visible; text-overflow:clip; line-height:1.25;
+  }
+}
+
+/* ---- scoreboard incidents -------------------------------
+   Scorers sit under the team name, card counts beside the clock.
+   Both belong to the scoreline, so they stay visually subordinate
+   to it: small, muted, and never their own panel.
+---------------------------------------------------------- */
+.sb-tmeta{ min-width:0; display:flex; flex-direction:column; gap:3px; }
+.sb-team.right .sb-tmeta{ align-items:flex-end; }
+.sb-goals{ display:flex; flex-direction:column; gap:1px; }
+.sb-goals .sg{
+  display:flex; align-items:center; gap:4px; white-space:nowrap;
+  font-size:10.5px; font-weight:600; color:var(--ink-3);
+  font-variant-numeric:tabular-nums;
+}
+.sb-team.right .sb-goals .sg{ flex-direction:row-reverse; }
+.sg-ball{
+  flex:0 0 auto; width:9px; height:9px; border-radius:50%;
+  background:radial-gradient(circle at 32% 30%, #FFFFFF, #B9CFD6 62%, #7C98A4);
+  box-shadow:0 0 0 1px rgba(0,0,0,.45);
+}
+.sb-cards{ display:flex; align-items:center; gap:7px; margin-left:2px; }
+.sb-cards .cd{
+  display:flex; align-items:center; gap:3px;
+  font-size:11px; font-weight:750; color:var(--ink-3);
+  font-variant-numeric:tabular-nums;
+}
+.sb-cards .cd i{ width:7px; height:10px; border-radius:2px; flex:0 0 auto; }
+.sb-cards .cd.y i{ background:#F7C860; }
+.sb-cards .cd.r i{ background:#F41F50; }
+.sb-cards .cd.z{ opacity:.45; }
+@media (max-width:640px){
+  .scoreboard{ padding:12px 13px; }
+}
+
+/* ============================================================
+   SCOREBOARD, RESPONSIVE — diletakkan paling akhir supaya menang
+   atas aturan .theme-a/b/c yang mendahuluinya.
+   ============================================================ */
+@media (max-width: 860px){
+  .nm-full{ display:none; }
+  .nm-short{ display:inline; }
+  .sb-score{ gap:8px; }
+  .sb-team{ gap:7px; }
+  .sb-team .crest,
+  .theme-a .sb-team .crest,
+  .theme-b .sb-team .crest,
+  .theme-c .sb-team .crest{
+    width:26px; height:26px; flex:0 0 26px; border-radius:6px; font-size:9.5px;
+  }
+  .sb-team .crest img{ width:26px; height:26px; }
+  .sb-num,
+  .theme-a .sb-num,
+  .theme-b .sb-num,
+  .theme-c .sb-num{ font-size:24px; }
+  .sb-dash{ font-size:17px; }
+  .sb-nums{ gap:6px; }
+  .sb-team .nm,
+  .theme-a .sb-team .nm,
+  .theme-b .sb-team .nm,
+  .theme-c .sb-team .nm{ font-size:13px; font-weight:700; }
+  /* "A. Aldermey 23'" needs 91px in a 52px slot — wrap, never clip */
+  .sb-goals .sg{ font-size:9.5px; white-space:normal; overflow:visible;
+    text-overflow:clip; line-height:1.22; }
+}
+@media (max-width: 640px){
+  .sb-team .nm,
+  .theme-a .sb-team .nm,
+  .theme-b .sb-team .nm,
+  .theme-c .sb-team .nm{ font-size:12.5px; }
+  .sb-num,
+  .theme-a .sb-num,
+  .theme-b .sb-num,
+  .theme-c .sb-num{ font-size:22px; }
+  .sb-goals .sg{ font-size:9px; }
+}
+@media (max-width: 380px){
+  .sb-team .crest,
+  .theme-a .sb-team .crest,
+  .theme-b .sb-team .crest,
+  .theme-c .sb-team .crest{
+    width:22px; height:22px; flex:0 0 22px; border-radius:5px; font-size:8px;
+  }
+  .sb-team .crest img{ width:22px; height:22px; }
+  .sb-team .nm,
+  .theme-a .sb-team .nm,
+  .theme-b .sb-team .nm,
+  .theme-c .sb-team .nm{ font-size:11.5px; }
+  .sb-num,
+  .theme-a .sb-num,
+  .theme-b .sb-num,
+  .theme-c .sb-num{ font-size:20px; }
+  .sb-goals .sg{ font-size:8.5px; }
+  .sb-score{ gap:6px; }
+  .sb-team{ gap:6px; }
+}
+
+/* ---- sports tiles, tighter as the column narrows -------------
+   At 641px the menu was four rows tall (353px) and pushed the whole
+   page down. Shrink the tile and the ball so it stays two rows. */
+@media (max-width: 1120px){
+  .tabs{ grid-template-columns:repeat(10, minmax(0, 1fr)); gap:6px; }
+  .tab .sport-ico{ width:32px; height:32px; flex:0 0 32px; }
+  .tab .sport-ico.svg svg{ width:25px; height:25px; }
+}
+/* below 1000px the main column is too narrow for ten across */
+@media (max-width: 1000px){
+  .tabs{ grid-template-columns:repeat(5, minmax(0, 1fr)); gap:6px; }
+  .tab{ min-height:72px; padding:9px 4px 8px; gap:5px; font-size:11px; }
+  .tab .sport-ico{ width:30px; height:30px; flex:0 0 30px; }
+  .tab .sport-ico.svg svg{ width:23px; height:23px; }
+}
+@media (max-width: 640px){
+  .tabs{ grid-template-columns:repeat(5, minmax(0, 1fr)); gap:5px; padding:10px 12px 0; }
+  .tab{ min-height:66px; gap:4px; font-size:10.5px; border-radius:9px; }
+  .tab .sport-ico{ width:28px; height:28px; flex:0 0 28px; }
+  .tab .sport-ico.svg svg{ width:21px; height:21px; }
+  .tab .n{ min-width:16px; height:16px; font-size:9px; top:-5px; right:-9px; }
+}
+
+/* ============================================================
+   SPORT PAGE — halaman kosong per olahraga
+   ============================================================ */
+.sportpage{ padding:14px 16px 26px; display:flex; flex-direction:column; gap:14px; }
+.sp-card{
+  border:1px solid var(--hair-2); border-radius:16px;
+  background:linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.028));
+  padding:26px 22px 22px; text-align:center;
+  display:flex; flex-direction:column; align-items:center; gap:9px;
+}
+.sp-ball{
+  width:76px; height:76px; object-fit:contain; display:block; margin-bottom:4px;
+  filter:saturate(1.02) brightness(1.04);
+  drop-shadow:0 6px 18px rgba(0,0,0,.45);
+}
+.sp-card h2{ font-size:19px; font-weight:750; color:var(--ink); letter-spacing:-.01em; }
+.sp-lede{ font-size:13.5px; line-height:1.55; color:var(--ink-2); max-width:52ch; }
+.sp-note{
+  font-size:12px; line-height:1.55; color:var(--ink-3); max-width:52ch;
+  padding-top:9px; margin-top:2px; border-top:1px solid var(--hair);
+}
+.sp-actions{ display:flex; flex-wrap:wrap; gap:9px; justify-content:center; margin-top:8px; }
+.sp-cta{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:10px 16px; border-radius:10px; border:0;
+  background:linear-gradient(180deg,#4FE3EC,#29B9C6);
+  color:#03222A; font-size:13px; font-weight:750;
+}
+.sp-cta:hover{ filter:brightness(1.07); }
+.sp-ghost{
+  padding:10px 16px; border-radius:10px;
+  border:1px solid var(--hair-2); background:rgba(255,255,255,.05);
+  color:var(--ink-2); font-size:13px; font-weight:650;
+}
+.sp-ghost:hover{ color:var(--ink); background:rgba(255,255,255,.09); }
+
+.sp-others{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.sp-others-h{ font-size:11px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-3); }
+.sp-tile{
+  display:inline-flex; align-items:center; gap:7px;
+  padding:7px 12px 7px 9px; border-radius:99px;
+  border:1px solid rgba(255,255,255,.16);
+  background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
+  font-size:12.5px; font-weight:650; color:var(--ink-2);
+}
+.sp-tile img{ width:22px; height:22px; object-fit:contain; display:block; }
+.sp-tile:hover{ color:var(--ink); border-color:rgba(255,255,255,.26); }
+
+@media (max-width:640px){
+  .sportpage{ padding:12px 12px 22px; }
+  .sp-card{ padding:20px 16px 18px; }
+  .sp-ball{ width:62px; height:62px; }
+  .sp-card h2{ font-size:17px; }
+  .sp-actions{ flex-direction:column; align-items:stretch; width:100%; }
+  .sp-cta, .sp-ghost{ justify-content:center; }
+}
+
+/* ---------------- v2: lime as the decorative accent ----------------
+   Prices and primary actions keep the Housebets cyan on purpose, so
+   lime is only ever allowed on surfaces, borders and quiet labels. */
+.secthead .more:hover,
+.mcard .head .mkt:hover,
+.mrow .moreM:hover,
+.cgroup .ch .ca:hover{ color:var(--lime); }
+.o:hover{ border-color:rgba(168,219,47,.45); }
+.o.sel{ background:var(--lime-deep); border-color:var(--lime); }
+.prize .dot{ background:var(--lime); box-shadow:0 0 8px var(--lime); }
+.sresults .kind{ color:var(--lime); }
+.mb .sh .st.open{ color:var(--lime); background:var(--lime-soft); }
+.av.me{ background:var(--lime-soft); border-color:rgba(168,219,47,.4); color:var(--lime); }
+.sb-top .k, .mcard .head .clock{ color:var(--live-tx); }
+
+/* ---------------- names must never be cut off ----------------
+   Three price buttons share a narrow row and the price takes most of
+   it, so a name like "Brighton" was left 32px when it needs 46px.
+   Shrinking the type does not help — it shrinks the button too. The
+   name has to get its own line instead of the leftovers. */
+.oddsrow{ display:flex; gap:5px; padding:2px 12px 12px; }
+.oddsrow.col3 .o{ flex:1 1 0; padding:6px 5px; gap:3px; }
+.oddsrow.col2 .o{ flex:1 1 0; padding:6px 6px; gap:4px; }
+.oddsrow.col3 .o .oname{ font-size:10.5px; }
+.oddsrow.col3 .o .oval{ font-size:12.5px; }
+.oddsrow.col2 .o .oname{ font-size:11px; }
+
+.fcard .oddsrow.col3 .o,
+.mrow .odds .o,
+.heroodds .o{
+  flex-direction:column; align-items:flex-start; justify-content:center;
+  gap:1px;
+}
+.fcard .oddsrow.col3 .o .oname,
+.mrow .odds .o .oname,
+.heroodds .o .oname{
+  font-size:10px; letter-spacing:0; max-width:100%;
+}
+.mrow .odds .o{ padding:5px 7px; min-width:78px; }
+.mrow .odds .o .oval{ font-size:12.5px; }
+.heroodds .o{ padding:6px 8px; }
+.heroodds .o .oval{ font-size:13.5px; }
+
+/* Inside a competition group the buttons are 310px on a desktop and
+   75px on a phone, because the card grid changes column count rather
+   than scaling smoothly — so a viewport media query cannot tell
+   whether the name will fit. Let the row measure itself and stack only
+   below ~113px per button, leaving the wide layout untouched. */
+.oddsrow{ container-type:inline-size; }
+@container (max-width:350px){
+  .oddsrow.col3 .o{
+    flex-direction:column; align-items:flex-start; justify-content:center; gap:1px;
+  }
+  .oddsrow.col3 .o .oname{
+    font-size:10px; letter-spacing:0; max-width:100%;
+  }
+}
+
+/* Market names have no space to wrap on, so in the band where a
+   three-up column gets tight they take their own line. Below 640px the
+   existing phone rules already let them wrap, so this must not reach
+   down there — they use overflow:visible and overriding it re-clips
+   every name on a phone. */
+@media (min-width:641px){
+  .grid .o .oname{
+    white-space:normal; overflow:hidden; text-overflow:clip; line-height:1.15;
+  }
+}
+@media (min-width:641px) and (max-width:940px){
+  .grid.c3 .o{ flex-direction:column; align-items:flex-start; justify-content:center; gap:2px; }
+  .grid.c3 .o .oname{ font-size:11px; white-space:normal; overflow-wrap:break-word; }
+}
